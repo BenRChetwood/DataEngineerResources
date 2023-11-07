@@ -1,3 +1,5 @@
+from datetime import datetime
+
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -49,18 +51,66 @@ df = pd.DataFrame(runs_results)
 # print(df)
 
 
+
 # dffailed = df.loc[df['JobRunState'] == 'FAILED']
 # print(dffailed)
 dfsuccess = df.loc[df['JobRunState'] == 'SUCCEEDED']
-# dfsuccess = df.loc[df['StartedOn'] >= '2023-11-01']
+# dfsuccess = df.loc[df['StartedOn'] >= '2023-07-20']
 
-mindate = min(dfsuccess['StartedOn'])
-maxdate = max(dfsuccess['StartedOn'])
+# mindate = min(dfsuccess['StartedOn'])
+# maxdate = max(dfsuccess['StartedOn'])
 
-print(f'mindate is {mindate}, maxdate is {maxdate}')
+# print(f'mindate is {mindate}, maxdate is {maxdate}')
 
-# print(dfsuccess)
+
+# num_of_rows = len(dfsuccess)
+# print(f"The number of rows is {num_of_rows}")
 
 # filtereddf = dffailed[dffailed['ErrorMessage'].str.lower().str.contains("validation")] # Search for "text", after converting  to lowercase   
 # print('\nResult dataframe :\n', filtereddf)
 
+
+
+#Get failed runs 
+next_token = ""
+client = boto3.client('glue',region_name='eu-west-1')
+failedruns = 0
+
+while True:
+  response = glue_client.get_job_runs(JobName="cfp-accounts-stage-prod", NextToken = next_token)
+  for jobrun in response["JobRuns"]:
+    if jobrun['JobRunState'] == 'FAILED' and "check failed" in jobrun['ErrorMessage'].lower():
+       failedruns += 1
+  next_token = response.get('NextToken')
+  if next_token is None:
+    break
+print(f'failedruns is {failedruns}')
+
+#Get successful runs 
+next_token = ""
+client = boto3.client('glue',region_name='eu-west-1')
+successfulruns = 0
+
+while True:
+  response = glue_client.get_job_runs(JobName="cfp-accounts-stage-prod", NextToken = next_token)
+  for jobrun in response["JobRuns"]:
+    if jobrun['JobRunState'] == 'SUCCEEDED':
+       successfulruns += 1
+  next_token = response.get('NextToken')
+  if next_token is None:
+    break
+print(f'successfulruns is {failesuccessfulrunsdruns}')
+
+#all runs 
+next_token = ""
+client = boto3.client('glue',region_name='eu-west-1')
+totalruns = 0
+
+while True:
+  response = glue_client.get_job_runs(JobName="cfp-accounts-stage-prod", NextToken = next_token)
+  for jobrun in response["JobRuns"]:
+    totalruns += 1
+  next_token = response.get('NextToken')
+  if next_token is None:
+    break
+print(f'totalruns is {totalruns}')
